@@ -11,3 +11,8 @@
 ![s3](https://github.com/user-attachments/assets/f05dcdca-62c3-4e4b-9490-e2c67f61ebf7)
 
 # wait all the image be loaded, and enjoy your time
+
+
+references:
+- https://github.com/Yan-Bin-Lin/nhentai_scroll_slide
+- https://www.youtube.com/watch?v=U4dSWJFIQ0A&t=1756s
