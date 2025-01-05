@@ -1,0 +1,95 @@
+// ==UserScript==
+// @name         imhentai scroll
+// @namespace    https://github.com/tofuhigoku/imhentai_scroll_script/
+// @version      0.0
+// @description  scroll to read picture in imhentai.xxx
+// @author       Mahou Shoujo hOwOka
+// @match        https://imhentai.xxx/view/*/*/
+// @grant        none
+// @license      MIT
+// ==/UserScript==
+
+document.addEventListener("DOMContentLoaded", function(event){
+        // Your code here...
+    window.setTimeout(function() {}, 1000);
+    console.log("wait done")
+
+    let img_tag = document.getElementsByTagName("img")
+    console.log(img_tag)
+    let img_src = img_tag.gimg.attributes[2].nodeValue
+
+    console.log(img_src.toString())
+    let total_page = parseInt($("span.total_pages").first().text());
+    console.log(total_page);
+
+    let base = img_src.slice(0, img_src.lastIndexOf("/") + 1);
+    console.log(base.toString());
+
+    let width = parseInt(img_tag.gimg.style.maxWidth)
+    let height = parseInt(img_tag.gimg.style.maxHeight)
+    console.log(width, height);
+    let start = parseInt(window.location.pathname.slice(0, -1).split('/').pop()) + 1
+
+    let target = document.getElementsByClassName("next_img")
+    console.log(target)
+
+    let bar = document.getElementById("bar");
+    bar.remove();
+    let footer = document.getElementById("footer");
+    footer.remove();
+
+    let page_next_btn = document.getElementsByClassName("next_nav page_next")[0]
+    page_next_btn.remove();
+    let page_prv_btn = document.getElementsByClassName("prev_nav page_prev")[0]
+    page_prv_btn.remove();
+
+    let gallery_btn = document.getElementsByClassName("return_btn btn btn-primary")[0]
+    let pagination = document.getElementsByClassName("nav_pagination col-md-12")[0]
+
+    pagination.insertBefore(gallery_btn, pagination.childNodes[0])
+
+
+    function insertImage2(event) {
+        let base = event.data.base
+        console.log("insertImage2 base", base)
+        let i = event.data.i
+        console.log("insertImage2 i", i)
+        let url = base + (i - 1).toString()
+        console.log("insertImage2 url", url)
+        if ($(target).find('img[src$="' + url + '.jpg"]').length > 0) {
+            $('img[src$="' + url + '.jpg"]').after($(this));
+        } else if ($(target).find('img[src$="' + url + '.png"]').length > 0) {
+            $('img[src$="' + url + '.png"]').after($(this));
+        } else if ($(target).find('img[src$="' + url + '.webp"]').length > 0) {
+            $('img[src$="' + url + '.webp"]').after($(this));
+        } else {
+            $(this).appendTo(target);
+        }
+    }
+
+    function loadImage2(base, i, width, height) {
+
+        img_src = img_tag.gimg.attributes[2].nodeValue
+        base = img_src.slice(0, img_src.lastIndexOf("/") + 1);
+        console.log("img_src", img_tag.gimg.attributes[2].nodeValue)
+        let url = base + i.toString();
+        console.log("loadImage2 url", url)
+        $('<img src="'+ url + '.jpg' +'">')
+            .one("load", {base: base, i: i}, insertImage2)
+            .one("error", function() {
+            $('<img src="'+ url + '.png' +'">')
+                .one("load", {base: base, i: i}, insertImage2)
+                .one("error", function() {
+                $('<img src="'+ url + '.webp' +'">')
+                    .one("load", {base: base, i: i}, insertImage2)
+            });
+        });
+    }
+
+    for (let i = start;i <= total_page; i++){
+        window.setTimeout(function() {
+            loadImage2(base, i, width, height);
+        }, 750 * (i + 1 - start));
+
+    }
+});
